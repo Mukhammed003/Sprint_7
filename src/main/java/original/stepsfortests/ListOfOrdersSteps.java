@@ -1,4 +1,4 @@
-package original.StepsForTests;
+package original.stepsfortests;
 
 import io.qameta.allure.Step;
 import io.restassured.response.Response;

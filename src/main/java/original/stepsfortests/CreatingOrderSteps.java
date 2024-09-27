@@ -1,12 +1,12 @@
-package original.StepsForTests;
+package original.stepsfortests;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
 import original.Constants;
-import original.RequestBodies.RequestBodyForCreatingOrder;
-import original.ResponseBodies.RightResponseBodyAfterCreatingOrder;
+import original.requestbodies.RequestBodyForCreatingOrder;
+import original.responsebodies.RightResponseBodyAfterCreatingOrder;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.Assert.assertEquals;
@@ -20,11 +20,6 @@ public class CreatingOrderSteps {
                 .body(requestBodyForCreatingOrder)
                 .when()
                 .post(Constants.ENDPOINT_FOR_CREATING_ORDER);
-    }
-
-    @Step("Проверяем статус код")
-    public void assertStatusCode(Response response, int expectedStatusCode) {
-        response.then().statusCode(expectedStatusCode);
     }
 
     @Step("Получаем трек ID заказа")

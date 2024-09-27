@@ -1,14 +1,14 @@
-package original.StepsForTests;
+package original.stepsfortests;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
 import original.Constants;
-import original.RequestBodies.RequestBodyForCreatingCourier;
-import original.RequestBodies.RequestBodyForLoginCourier;
-import original.ResponseBodies.RightResponseBodyAfterCreatingCourier;
-import original.ResponseBodies.RightResponseBodyAfterCreatingCourierWithBadRequest;
+import original.requestbodies.RequestBodyForCreatingCourier;
+import original.requestbodies.RequestBodyForLoginCourier;
+import original.responsebodies.RightResponseBodyAfterCreatingCourier;
+import original.responsebodies.RightResponseBodyAfterCreatingCourierWithBadRequest;
 
 import java.io.File;
 
@@ -27,8 +27,8 @@ public class CreatingCourierSteps {
         return response;
     }
 
-    @Step("Проверка, что статус ответа при создании курьера равен {expectedStatusCode}")
-    public void verifyCourierCreationStatus(Response response, Integer expectedStatusCode) {
+    @Step("Проверка статуса ответа")
+    public void verifyStatus(Response response, Integer expectedStatusCode) {
         response.then().statusCode(expectedStatusCode);
     }
 

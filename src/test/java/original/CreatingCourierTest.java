@@ -2,11 +2,13 @@ package original;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import original.RequestBodies.RequestBodyForCreatingCourier;
-import original.RequestBodies.RequestBodyForLoginCourier;
-import original.StepsForTests.CreatingCourierSteps;
+import original.requestbodies.RequestBodyForCreatingCourier;
+import original.requestbodies.RequestBodyForLoginCourier;
+import original.stepsfortests.CreatingCourierSteps;
+import static org.apache.http.HttpStatus.*;
 
 import java.io.File;
 
@@ -23,17 +25,10 @@ public class CreatingCourierTest {
     public void rightCreatingCourier() {
         RequestBodyForCreatingCourier requestBodyForCreatingCourier = new RequestBodyForCreatingCourier("Mukhammed", "1234", "Sasuke");
         Response responseAfterCreatingCourier = creatingCourierSteps.createCourier(requestBodyForCreatingCourier);
-        creatingCourierSteps.verifyCourierCreationStatus(responseAfterCreatingCourier, 201);
+        creatingCourierSteps.verifyStatus(responseAfterCreatingCourier, SC_CREATED);
 
         String actualJson = creatingCourierSteps.getFormattedResponseBody(responseAfterCreatingCourier);
         creatingCourierSteps.verifyResponseBody(Constants.EXAMPLE_OF_RIGHT_RESPONSE_BODY_AFTER_CREATING_COURIER, actualJson);
-
-        RequestBodyForLoginCourier requestBodyForLoginCourier = new RequestBodyForLoginCourier("Mukhammed", "1234");
-        Response responseAfterLoginCourier = creatingCourierSteps.loginCourier(requestBodyForLoginCourier);
-
-        String courierId = creatingCourierSteps.extractCourierId(responseAfterLoginCourier);
-
-        creatingCourierSteps.deleteCourierById(courierId);
     }
 
     @Test
@@ -43,12 +38,7 @@ public class CreatingCourierTest {
         creatingCourierSteps.createCourier(requestBodyForCreatingCourier);
 
         Response secondResponseAfterCreatingCourier = creatingCourierSteps.createCourier(requestBodyForCreatingCourier);
-        creatingCourierSteps.verifyCourierCreationStatus(secondResponseAfterCreatingCourier, 409);
-
-        RequestBodyForLoginCourier requestBodyForLoginCourier = new RequestBodyForLoginCourier("Mukhammed", "1234");
-        Response responseAfterLoginCourier = creatingCourierSteps.loginCourier(requestBodyForLoginCourier);
-        String courierId = creatingCourierSteps.extractCourierId(responseAfterLoginCourier);
-        creatingCourierSteps.deleteCourierById(courierId);
+        creatingCourierSteps.verifyStatus(secondResponseAfterCreatingCourier, SC_CONFLICT);
 
         String actualJson = creatingCourierSteps.getFormattedErrorResponseBody(secondResponseAfterCreatingCourier);
         creatingCourierSteps.verifyResponseBody(Constants.EXAMPLE_OF_RIGHT_RESPONSE_BODY_AFTER_CREATING_IDENTICAL_COURIERS, actualJson);
@@ -59,7 +49,7 @@ public class CreatingCourierTest {
         File json = new File("src/test/resources/creatingCourierWithoutPassword.json");
 
         Response responseAfterCreatingCourier = creatingCourierSteps.createCourierFromFile(json);
-        creatingCourierSteps.verifyCourierCreationStatus(responseAfterCreatingCourier, 400);
+        creatingCourierSteps.verifyStatus(responseAfterCreatingCourier, SC_BAD_REQUEST);
 
         String actualJson = creatingCourierSteps.getFormattedErrorResponseBody(responseAfterCreatingCourier);
         creatingCourierSteps.verifyResponseBody(Constants.EXAMPLE_OF_RIGHT_RESPONSE_BODY_AFTER_CREATING_COURIER_WITH_BAD_REQUEST, actualJson);
@@ -70,7 +60,7 @@ public class CreatingCourierTest {
         File json = new File("src/test/resources/creatingCourierWithoutLogin.json");
 
         Response responseAfterCreatingCourier = creatingCourierSteps.createCourierFromFile(json);
-        creatingCourierSteps.verifyCourierCreationStatus(responseAfterCreatingCourier, 400);
+        creatingCourierSteps.verifyStatus(responseAfterCreatingCourier, SC_BAD_REQUEST);
 
         String actualJson = creatingCourierSteps.getFormattedErrorResponseBody(responseAfterCreatingCourier);
         creatingCourierSteps.verifyResponseBody(Constants.EXAMPLE_OF_RIGHT_RESPONSE_BODY_AFTER_CREATING_COURIER_WITH_BAD_REQUEST, actualJson);
@@ -82,13 +72,21 @@ public class CreatingCourierTest {
 
         Response responseAfterCreatingCourier = creatingCourierSteps.createCourierFromFile(json);
 
-        RequestBodyForLoginCourier requestBodyForLoginCourier = new RequestBodyForLoginCourier("Mukhammed", "1234");
-        Response responseAfterLoginCourier = creatingCourierSteps.loginCourier(requestBodyForLoginCourier);
-        String courierId = creatingCourierSteps.extractCourierId(responseAfterLoginCourier);
-        creatingCourierSteps.deleteCourierById(courierId);
-
-        creatingCourierSteps.verifyCourierCreationStatus(responseAfterCreatingCourier, 400);
+        creatingCourierSteps.verifyStatus(responseAfterCreatingCourier, SC_BAD_REQUEST);
         String actualJson = creatingCourierSteps.getFormattedErrorResponseBody(responseAfterCreatingCourier);
         creatingCourierSteps.verifyResponseBody(Constants.EXAMPLE_OF_RIGHT_RESPONSE_BODY_AFTER_CREATING_COURIER_WITH_BAD_REQUEST, actualJson);
+    }
+
+    @After
+    public void setDown() {
+        RequestBodyForLoginCourier requestBodyForLoginCourier = new RequestBodyForLoginCourier("Mukhammed", "1234");
+        Response responseAfterLoginCourier = creatingCourierSteps.loginCourier(requestBodyForLoginCourier);
+        if(responseAfterLoginCourier.getStatusCode() == SC_OK) {
+            String courierId = creatingCourierSteps.extractCourierId(responseAfterLoginCourier);
+            creatingCourierSteps.deleteCourierById(courierId);
+        }
+        else {
+            System.out.println("Wrong");
+        }
     }
 }

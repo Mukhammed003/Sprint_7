@@ -6,12 +6,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import original.RequestBodies.RequestBodyForCreatingOrder;
-import original.StepsForTests.CreatingOrderSteps;
+import original.requestbodies.RequestBodyForCreatingOrder;
+import original.stepsfortests.CreatingCourierSteps;
+import original.stepsfortests.CreatingOrderSteps;
+import static org.apache.http.HttpStatus.*;
 
 @RunWith(Parameterized.class)
 public class CreatingOrderTest {
 
+    CreatingCourierSteps creatingCourierSteps = new CreatingCourierSteps();
     CreatingOrderSteps creatingOrderSteps = new CreatingOrderSteps();
 
     private final String firstName;
@@ -53,11 +56,12 @@ public class CreatingOrderTest {
 
     @Test
     public void rightCreatingOrder() {
-        RequestBodyForCreatingOrder requestBodyForCreatingOrder = new RequestBodyForCreatingOrder(firstName, lastName, address, metroStation, phone, rentTime, deliveryDate, comment, color);
+        RequestBodyForCreatingOrder requestBodyForCreatingOrder =
+                new RequestBodyForCreatingOrder(firstName, lastName, address, metroStation, phone, rentTime, deliveryDate, comment, color);
 
         Response responseAfterCreatingOrder = creatingOrderSteps.createOrder(requestBodyForCreatingOrder);
 
-        creatingOrderSteps.assertStatusCode(responseAfterCreatingOrder, 201);
+        creatingCourierSteps.verifyStatus(responseAfterCreatingOrder, SC_CREATED);
 
         String trackId = creatingOrderSteps.getTrackId(responseAfterCreatingOrder);
 
